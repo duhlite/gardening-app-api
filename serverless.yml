@@ -1,12 +1,9 @@
-service: gardening-api
+service: garden-api
 
-# Use the serverless-webpack plugin to transpile ES6
 plugins:
   - serverless-webpack
   - serverless-offline
 
-# serverless-webpack configuration
-# Enable auto-packing of external modules
 custom:
   stage: ${opt:stage, self:provider.stage}
   tableName: ${self:custom.stage}-gardening
@@ -24,8 +21,6 @@ provider:
   stage: dev
   region: us-east-2
 
-  # 'iamRoleStatement' defines the permission policy for the Lambda function.
-  # In this case Lambda functions are granted with permissions to access DynamoDB.
   environment:
     tableName: ${self:custom.tableName}
 
@@ -43,70 +38,60 @@ provider:
         - "Fn::GetAtt": [ GardeningTable, Arn ]
 
 functions:
-  # Defines an HTTP API endpoint that calls the main function in create.js
-  # - path: url path is /notes
-  # - method: POST request
-  # - cors: enabled CORS (Cross-Origin Resource Sharing) for browser cross
-  #     domain api call
-  # - authorizer: authenticate using the AWS IAM role
   create:
     handler: create.main
     events:
       - http:
-          path: gardening
+          path: garden
           method: post
           cors: true
           authorizer: aws_iam
 
   get:
-    # Defines an HTTP API endpoint that calls the main function in get.js
-    # - path: url path is /notes/{id}
-    # - method: GET request
     handler: get.main
     events:
       - http:
-          path: gardening/{id}
+          path: garden/{id}
           method: get
           cors: true
           authorizer: aws_iam
 
   list:
-    # Defines an HTTP API endpoint that calls the main function in list.js
-    # - path: url path is /notes
-    # - method: GET request
     handler: list.main
     events:
       - http:
-          path: gardening
+          path: garden
           method: get
           cors: true
           authorizer: aws_iam
 
   update:
-    # Defines an HTTP API endpoint that calls the main function in update.js
-    # - path: url path is /notes/{id}
-    # - method: PUT request
     handler: update.main
     events:
       - http:
-          path: gardening/{id}
+          path: garden/{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  addplant:
+    handler: addplant.main
+    events:
+      - http:
+          path: garden/addplant/{id}
           method: put
           cors: true
           authorizer: aws_iam
 
   delete:
-    # Defines an HTTP API endpoint that calls the main function in delete.js
-    # - path: url path is /notes/{id}
-    # - method: DELETE request
     handler: delete.main
     events:
       - http:
-          path: gardening/{id}
+          path: garden/{id}
           method: delete
           cors: true
           authorizer: aws_iam
 
-# Create our resources with separate CloudFormation templates
 resources:
   # API Gateway Errors
   - ${file(resources/api-gateway-errors.yml)}

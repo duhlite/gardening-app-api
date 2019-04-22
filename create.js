@@ -8,9 +8,11 @@ export async function main(event, context) {
     TableName: process.env.tableName,
     Item: {
       userId: event.requestContext.identity.cognitoIdentityId,
-      plantId: uuid.v1(),
+      bedId: uuid.v1(),
       name: data.name,
-      nitrogen: data.nitrogen,
+      bedLength: data.lengthDimension,
+      bedWidth: data.widthDimension,
+      plants: [],
       createdAt: Date.now()
     }
   };

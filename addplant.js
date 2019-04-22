@@ -9,18 +9,16 @@ export async function main(event, context) {
       userId: event.requestContext.identity.cognitoIdentityId,
       bedId: event.pathParameters.id
     },
-    UpdateExpression: "SET #n = :n, #l = :l, #w = :w, #p = :p",
+    UpdateExpression: "SET #p = list_append(:vals, #p)",
     ExpressionAttributeNames: {
-      '#n' : 'name',
-      '#l' : 'bedLength',
-      '#w' : 'bedWidth',
-      '#p' : 'plants'
+        '#p' : 'plants'
     },
     ExpressionAttributeValues: {
-      ":n": data.name,
-      ":l": data.lengthDimension,
-      ":w": data.widthDimension,
-      ":p": data.plants
+      ":vals": [
+          {'myPlant':
+            {"name": data.name, "species": data.speciesName, "speciesId":     data.speciesId, "sowing": data.sowing, "maturation": data.maturation,   "year": data.year}
+          }
+        ]
     },
     ReturnValues: "ALL_NEW"
   };
@@ -29,7 +27,7 @@ export async function main(event, context) {
     const result = await dynamoDbLib.call("update", params);
     return success({ status: true });
   } catch (e) {
-    console.log(e);
-    callback(null, failure({ status: false }));
+     console.log(e);
+     callback(null, failure({ status: false }));
   }
 }
